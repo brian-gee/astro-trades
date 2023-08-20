@@ -1,0 +1,175 @@
+<section class="trade-input">
+  <h2>Input Trades</h2>
+  <p>
+    Copy and paste your trades from TD Ameritrade and past them in the below
+  </p>
+  <textarea
+    id="tradeData"
+    rows="10"
+    cols="50"
+    placeholder="Paste your trades here..."></textarea>
+  <button id="submitTrades">Submit</button>
+  <div id="importStatus">
+    <svg class="spinner" viewBox="0 0 50 50" style="display: none;">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"
+      ></circle>
+    </svg>
+    <span></span>
+  </div>
+</section>
+
+<script>
+  import { db } from '../firebase-init';
+  import { addDoc, collection, Timestamp, terminate } from 'firebase/firestore';
+
+  document
+    .getElementById('submitTrades')
+    .addEventListener('click', async function () {
+      const tradeData = document.getElementById('tradeData').value;
+      const statusDiv = document.getElementById('importStatus');
+      const statusText = statusDiv.querySelector('span');
+      const spinner = statusDiv.querySelector('.spinner');
+
+      spinner.style.display = 'inline-block';
+      statusText.textContent = ' Importing trades...';
+
+      const lines = tradeData.trim().split('\n');
+      let importedCount = 0;
+
+      for (let i = 0; i < lines.length; i += 4) {
+        if (i + 2 >= lines.length) break;
+
+        const line = lines[i].trim();
+        const details = lines[i + 2].trim();
+
+        const match = line.match(
+          /(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}:\d{2})\s+(Bought|Sold)\s+(\d+)\s+([A-Z]+)\s+@\s+([\d.]+)/
+        );
+
+        if (!match) {
+          console.error('Failed to match line:', line);
+          continue;
+        }
+
+        const [date, time, action, quantity, symbol, price] = match.slice(1);
+        const [trade_cost, commission, reg_fee] = details
+          .split(/\s+/)
+          .filter(Boolean);
+
+        const dateTimeStr = `${date} ${time}`;
+        const dateTimeObj = new Date(dateTimeStr);
+        const timestamp = Timestamp.fromDate(dateTimeObj);
+
+        const transaction = {
+          date_time: timestamp,
+          trade_type: action,
+          quantity: parseInt(quantity),
+          symbol: symbol,
+          price: parseFloat(price),
+          trade_cost: parseFloat(trade_cost.replace(',', '')),
+          commission: parseFloat(commission),
+          reg_fee: parseFloat(reg_fee),
+        };
+
+        try {
+          await addDoc(collection(db, 'trades'), transaction);
+          importedCount++;
+          statusText.textContent = ` Importing trades... ${importedCount} imported so far.`;
+        } catch (e) {
+          console.error('Error adding document: ', e);
+        }
+      }
+
+      terminate(db).then(() => {
+        console.log('Firestore connection terminated.');
+        spinner.style.display = 'none';
+        statusText.textContent = `Completed! Total trades imported: ${importedCount}`;
+      });
+    });
+</script>
+
+<style>
+  .trade-input {
+    padding: 20px;
+    background-color: #2a2f38;
+    border-radius: 7px;
+    color: white;
+    width: 80%;
+    margin: 20px auto;
+  }
+
+  .trade-input h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .trade-input p {
+    margin-bottom: 20px;
+  }
+
+  .trade-input textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #3a3f48;
+    border-radius: 5px;
+    color: white;
+    background-color: #23262d;
+    resize: none;
+    box-sizing: border-box;
+  }
+
+  .trade-input button {
+    padding: 10px 20px;
+    background-color: #3a3f48;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .trade-input button:hover {
+    background-color: #4a4f58;
+  }
+
+  #importStatus {
+    margin-top: 20px;
+    color: #ffd700;
+  }
+
+  .spinner {
+    animation: rotate 2s linear infinite;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+
+  .path {
+    stroke: #ffd700;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 150;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -35;
+    }
+    100% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -124;
+    }
+  }
+</style>

@@ -1,0 +1,154 @@
+---
+import { fetchTrades, Trade } from '../firebase/client';
+
+const trades: Trade[] = await fetchTrades();
+
+type GroupedTrade = {
+  date: string;
+  symbol: string;
+  volume: number;
+  executions: number;
+  profit: number;
+};
+
+// Group trades by date and symbol
+const groupedTrades: Record<string, GroupedTrade> = trades.reduce<
+  Record<string, GroupedTrade>
+>((acc, trade) => {
+  const date = new Date(trade.date_time.seconds * 1000).toLocaleDateString();
+  const key = `${date}-${trade.symbol}`;
+
+  if (!acc[key]) {
+    acc[key] = {
+      date,
+      symbol: trade.symbol,
+      volume: 0,
+      executions: 0,
+      profit: 0,
+    };
+  }
+
+  acc[key].volume += trade.quantity;
+  acc[key].executions += 1;
+  acc[key].profit += trade.trade_cost;
+
+  return acc;
+}, {});
+
+const displayTrades: GroupedTrade[] = Object.values(groupedTrades).sort(
+  (a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB.getTime() - dateA.getTime(); // Sorts from newest to oldest
+  }
+);
+
+let totalProfit = 0;
+let totalLoss = 0;
+
+displayTrades.forEach((trade) => {
+  if (trade.profit > 0) {
+    totalProfit += trade.profit;
+  } else {
+    totalLoss += trade.profit;
+  }
+});
+
+const totalPnL = totalProfit + totalLoss;
+---
+
+<section class="trade-summary">
+  <h2>Trade Summary</h2>
+  <div class="trade-details">
+    <div>Total Profits: ${totalProfit.toFixed(2)}</div>
+    <div>Total Losses: ${totalLoss.toFixed(2)}</div>
+    <div>Total P&L: ${totalPnL.toFixed(2)}</div>
+  </div>
+</section>
+<table class="trade-tracker">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Symbol</th>
+      <th>Volume</th>
+      <th>Executions</th>
+      <th>P&L</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      displayTrades.map((trade) => (
+        <tr>
+          <td>{trade.date}</td>
+          <td>{trade.symbol}</td>
+          <td>{trade.volume}</td>
+          <td>{trade.executions}</td>
+          <td>{trade.profit.toFixed(2)}</td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>
+<style>
+  .trade-summary {
+    padding: 20px;
+    background-color: #2a2f38;
+    border-radius: 7px;
+    color: white;
+    margin-top: 20px;
+    text-align: center; /* Center the text */
+  }
+  .trade-summary h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  .trade-details {
+    display: flex; /* Use Flexbox */
+    justify-content: space-between; /* Distribute items evenly */
+    align-items: center; /* Align items vertically in the center */
+    max-width: 500px; /* Adjust as needed */
+    margin: 0 auto; /* Center the container */
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #23262d;
+  }
+
+  .trade-tracker {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #23262d;
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .trade-tracker th,
+  .trade-tracker td {
+    padding: 8px 12px;
+    text-align: center;
+    color: white;
+    opacity: 0.8;
+    transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .trade-tracker th {
+    background-color: #2a2f38;
+    font-size: 1.25rem;
+  }
+
+  .trade-tracker tbody tr:nth-child(even) {
+    background-color: #2a2f38;
+  }
+
+  .trade-tracker tbody tr:hover {
+    background-color: #3a3f48;
+  }
+
+  .trade-tracker tbody tr:hover td {
+    color: rgba(255, 255, 255, 1);
+    opacity: 1;
+  }
+</style>

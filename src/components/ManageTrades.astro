@@ -1,0 +1,158 @@
+---
+import { db } from '../firebase/client';
+import { getDocs, collection } from 'firebase/firestore';
+
+const tradesSnapshot = await getDocs(collection(db, 'trades'));
+let trades = tradesSnapshot.docs.map((doc) => {
+  return {
+    id: doc.id,
+    ...doc.data(),
+  };
+});
+
+// Sort trades by date with the newest at the top
+trades.sort((a, b) => {
+  const dateA = new Date(a.date_time.seconds * 1000);
+  const dateB = new Date(b.date_time.seconds * 1000);
+  return dateB.getTime() - dateA.getTime();
+});
+---
+
+<table class="trade-tracker">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Symbol</th>
+      <th>Volume</th>
+      <th>Trade Cost</th>
+      <th><button id="deleteSelectedTop">Delete Selected</button></th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      trades.map((trade) => (
+        <tr>
+          <td>
+            {new Date(trade.date_time.seconds * 1000).toLocaleDateString()}
+          </td>
+          <td>{trade.symbol}</td>
+          <td>{trade.quantity}</td>
+          <td>{trade.trade_cost.toFixed(2)}</td>
+          <td>
+            <input
+              type="checkbox"
+              class="trade-checkbox"
+              data-trade-id={trade.id}
+            />
+          </td>
+        </tr>
+      ))
+    }
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="6">
+        <button id="deleteSelectedBottom">Delete Selected</button>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+<script>
+  import { db } from '../firebase-init';
+  import { deleteDoc, doc } from 'firebase/firestore';
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const deleteSelectedButtons = document.querySelectorAll(
+      '#deleteSelectedTop, #deleteSelectedBottom'
+    );
+    deleteSelectedButtons.forEach((button) => {
+      button.addEventListener('click', function () {
+        const checkboxes = document.querySelectorAll('.trade-checkbox:checked');
+        const tradeIds = Array.from(checkboxes).map((checkbox) =>
+          checkbox.getAttribute('data-trade-id')
+        );
+
+        if (tradeIds.length === 0) {
+          alert('No trades selected for deletion.');
+          return;
+        }
+
+        if (confirm('Are you sure you want to delete the selected trades?')) {
+          const deletePromises = tradeIds.map((id) => deleteTrade(id));
+          Promise.all(deletePromises).then(() => {
+            location.reload();
+          });
+        }
+      });
+    });
+  });
+
+  function deleteTrade(id) {
+    return deleteDoc(doc(db, 'trades', id))
+      .then(() => {
+        console.log('Successfully deleted trade with ID:', id);
+      })
+      .catch((error) => {
+        console.error('Error deleting document:', error);
+      });
+  }
+</script>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #23262d;
+  }
+
+  .trade-tracker {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #23262d;
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .trade-tracker th,
+  .trade-tracker td {
+    padding: 8px 12px;
+    text-align: center;
+    color: white;
+    opacity: 0.8;
+    transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .trade-tracker th {
+    background-color: #2a2f38;
+    font-size: 1.25rem;
+  }
+
+  .trade-tracker tbody tr:nth-child(even) {
+    background-color: #2a2f38;
+  }
+
+  .trade-tracker tbody tr:hover {
+    background-color: #3a3f48;
+  }
+
+  .trade-tracker tbody tr:hover td {
+    color: rgba(255, 255, 255, 1);
+    opacity: 1;
+  }
+
+  button {
+    padding: 5px 10px;
+    background-color: #e74c3c; /* Red color for delete button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #c0392b; /* Darker red on hover */
+  }
+</style>

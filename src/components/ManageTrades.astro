@@ -59,7 +59,7 @@ trades.sort((a, b) => {
 </table>
 
 <script>
-  import { db } from '../firebase-init';
+  import { db } from '../firebase/client';
   import { deleteDoc, doc } from 'firebase/firestore';
 
   document.addEventListener('DOMContentLoaded', function () {

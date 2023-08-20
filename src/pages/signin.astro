@@ -15,15 +15,17 @@ if (sessionCookie) {
 ---
 
 <Layout title="Sign in">
-  <h1>Sign in</h1>
-  <p>New here? <a href="/register">Create an account</a></p>
-  <form action="/api/auth/signin" method="post">
-    <label for="email" for="email">Email</label>
-    <input type="email" name="email" id="email" />
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" />
-    <button type="submit">Login</button>
-  </form>
+  <main>
+    <h1>Sign in</h1>
+    <p>New here? <a href="/register">Create an account</a></p>
+    <form action="/api/auth/signin" method="post">
+      <label for="email" for="email">Email</label>
+      <input type="email" name="email" id="email" />
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" />
+      <button type="submit">Login</button>
+    </form>
+  </main>
 </Layout>
 <script>
   import {
@@ -65,3 +67,66 @@ if (sessionCookie) {
     }
   });
 </script>
+
+<style>
+  main {
+    margin: auto;
+    padding: 1rem;
+    width: 800px;
+    max-width: calc(100% - 2rem);
+    color: white;
+    font-size: 20px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    margin-bottom: 1em;
+  }
+  .text-gradient {
+    background-image: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 400px;
+    margin: 2rem auto;
+  }
+  label {
+    font-weight: bold;
+  }
+  input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid rgba(var(--accent-light), 25%);
+    border-radius: 4px;
+    background: rgba(var(--accent-dark), 33%);
+    color: white;
+  }
+  button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background: rgba(var(--accent-dark), 33%);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: grey;
+  }
+  a {
+    color: rgb(var(--accent-light));
+    text-decoration: underline;
+  }
+</style>

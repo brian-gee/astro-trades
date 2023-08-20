@@ -1,7 +1,9 @@
-<!-- Navbar Component -->
 <nav class="navbar">
   <div class="navbar-container">
-    <a href="/" class="navbar-logo">AstroTrades</a>
+    <div class="logo-container">
+      <img src="/favicon.png" alt="AstroTrades Icon" class="navbar-favicon" />
+      <a href="/" class="navbar-logo">AstroTrades</a>
+    </div>
     <ul class="navbar-menu">
       <li><a href="/" class="navbar-item">Home</a></li>
       <li><a href="/input" class="navbar-item">Trade Import</a></li>
@@ -23,6 +25,11 @@
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
+    align-items: center; /* Added this line */
+  }
+
+  .logo-container {
+    display: flex;
     align-items: center;
   }
 
@@ -31,6 +38,14 @@
     font-size: 1.5rem;
     text-decoration: none;
     font-weight: bold;
+    display: flex; /* Added this line */
+    align-items: center; /* Added this line */
+  }
+
+  .navbar-favicon {
+    height: 24px;
+    width: 24px;
+    margin-right: 10px; /* Added this line to give some space between the favicon and the text */
   }
 
   .navbar-menu {
@@ -60,7 +75,7 @@
     transition: color 0.3s ease;
     padding: 0;
     margin: 0;
-    font-family: inherit; /* To ensure the button uses the same font as the navbar items */
+    font-family: inherit;
   }
 
   .navbar-button:hover {

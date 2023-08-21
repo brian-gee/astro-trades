@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404 - Not Found">
+  <main>
+    <h1 class="text-gradient">404</h1>
+    <p>Oops! The page you're looking for doesn't exist.</p>
+    <a href="/">Return to Home</a>
+  </main>
+</Layout>
+
+<style>
+  main {
+    margin: auto;
+    padding: 1rem;
+    width: 800px;
+    max-width: calc(100% - 2rem);
+    color: white;
+    font-size: 20px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    margin-bottom: 1em;
+  }
+  .text-gradient {
+    background-image: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+  }
+  p {
+    margin-bottom: 1em;
+    font-size: 1.5rem;
+  }
+  a {
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background: rgba(var(--accent-dark), 33%);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-decoration: none;
+  }
+  a:hover {
+    background: grey;
+  }
+</style>

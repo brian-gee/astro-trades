@@ -22,6 +22,17 @@
   import { db } from '../firebase/client';
   import { addDoc, collection, Timestamp, terminate } from 'firebase/firestore';
 
+  async function fetchUserId() {
+    const response = await fetch('/api/auth/verifySession');
+    const data = await response.json();
+    if (response.ok) {
+      return data.uid;
+    } else {
+      console.error(data);
+      throw new Error('Failed to fetch UID');
+    }
+  }
+
   document
     .getElementById('submitTrades')
     .addEventListener('click', async function () {
@@ -35,6 +46,8 @@
 
       const lines = tradeData.trim().split('\n');
       let importedCount = 0;
+
+      const uid = await fetchUserId();
 
       for (let i = 0; i < lines.length; i += 4) {
         if (i + 2 >= lines.length) break;
@@ -72,7 +85,7 @@
         };
 
         try {
-          await addDoc(collection(db, 'trades'), transaction);
+          await addDoc(collection(db, 'users', uid, 'trades'), transaction);
           importedCount++;
           statusText.textContent = ` Importing trades... ${importedCount} imported so far.`;
         } catch (e) {

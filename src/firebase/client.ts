@@ -31,8 +31,8 @@ export const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 export { db };
 
-export async function fetchTrades(): Promise<Trade[]> {
-  const tradesCollection = collection(db, 'trades');
+export async function fetchTrades(userId: string): Promise<Trade[]> {
+  const tradesCollection = collection(db, 'users', userId, 'trades');
   const querySnapshot = await getDocs(tradesCollection);
   const trades: Trade[] = [];
   querySnapshot.forEach((doc) => {

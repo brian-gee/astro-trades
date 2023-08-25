@@ -1,7 +1,19 @@
 ---
 import { fetchTrades, Trade } from '../firebase/client';
+import { app } from '../firebase/server';
+import { getAuth } from 'firebase-admin/auth';
 
-const trades: Trade[] = await fetchTrades();
+const auth = getAuth(app);
+
+const sessionCookie = Astro.cookies.get('session').value;
+
+if (!sessionCookie) {
+  return Astro.redirect('/signin');
+}
+const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+const user = await auth.getUser(decodedCookie.uid);
+
+const trades: Trade[] = await fetchTrades(user.uid);
 
 type GroupedTrade = {
   date: string;

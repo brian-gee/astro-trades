@@ -73,6 +73,17 @@ trades.sort((a, b) => {
   import { db } from '../firebase/client';
   import { deleteDoc, doc } from 'firebase/firestore';
 
+  async function fetchUserId() {
+    const response = await fetch('/api/auth/verifySession');
+    const data = await response.json();
+    if (response.ok) {
+      return data.uid;
+    } else {
+      console.error(data);
+      throw new Error('Failed to fetch UID');
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     const deleteSelectedButtons = document.querySelectorAll(
       '#deleteSelectedTop, #deleteSelectedBottom'
@@ -99,8 +110,9 @@ trades.sort((a, b) => {
     });
   });
 
+  var user = await fetchUserId();
   function deleteTrade(id) {
-    return deleteDoc(doc(db, 'trades', id))
+    return deleteDoc(doc(db, 'users', user, 'trades', id))
       .then(() => {
         console.log('Successfully deleted trade with ID:', id);
       })

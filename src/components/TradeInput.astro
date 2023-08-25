@@ -98,6 +98,10 @@
         spinner.style.display = 'none';
         statusText.textContent = `Completed! Total trades imported: ${importedCount}`;
       });
+
+      setTimeout(() => {
+        location.reload();
+      }, 100);
     });
 </script>
 

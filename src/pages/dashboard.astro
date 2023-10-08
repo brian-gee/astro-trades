@@ -2,6 +2,7 @@
 import { app } from '../firebase/server';
 import { getAuth } from 'firebase-admin/auth';
 import Layout from '../layouts/Layout.astro';
+import TradeTable from '../components/TradeTable.astro';
 
 const auth = getAuth(app);
 
@@ -19,13 +20,11 @@ if (!user) {
 }
 ---
 
-<Layout title="dashboard">
+<Layout title="Dashboard">
   <main>
     <h1>Welcome {user.displayName}</h1>
     <p>We are happy to see you here</p>
-    <form action="/api/auth/signout">
-      <button type="submit">Sign out</button>
-    </form>
+    <TradeTable />
   </main>
 </Layout>
 

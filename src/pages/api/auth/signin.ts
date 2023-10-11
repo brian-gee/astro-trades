@@ -25,7 +25,7 @@ export const get: APIRoute = async ({ request, cookies, redirect }) => {
   });
 
   cookies.set('session', sessionCookie, {
-    path: '/dashboard',
+    path: '/',
   });
 
   return redirect('/dashboard');

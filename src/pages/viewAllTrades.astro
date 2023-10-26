@@ -6,6 +6,10 @@ import ManageTrades from '../components/ManageTrades.astro';
 
 const auth = getAuth(app);
 
+if (!Astro.cookies.has('session')) {
+  return Astro.redirect('/signin');
+}
+
 const sessionCookie = Astro.cookies.get('session').value;
 
 let decodedCookie: any;

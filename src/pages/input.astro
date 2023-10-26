@@ -6,15 +6,12 @@ import TradeInput from '../components/TradeInput.astro';
 
 const auth = getAuth(app);
 
-/* Check current session */
-if (!Astro.cookies.has('session')) {
-  return Astro.redirect('/signin');
-}
 const sessionCookie = Astro.cookies.get('session').value;
-const decodedCookie = await auth.verifySessionCookie(sessionCookie);
-const user = await auth.getUser(decodedCookie.uid);
 
-if (!user) {
+let decodedCookie: any;
+try {
+  decodedCookie = await auth.verifySessionCookie(sessionCookie);
+} catch (err) {
   return Astro.redirect('/signin');
 }
 ---

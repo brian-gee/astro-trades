@@ -8,7 +8,12 @@ const auth = getAuth(app);
 
 const sessionCookie = Astro.cookies.get('session').value;
 
-const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+let decodedCookie: any;
+try {
+  decodedCookie = await auth.verifySessionCookie(sessionCookie);
+} catch (err) {
+  return Astro.redirect('/signin');
+}
 const user = await auth.getUser(decodedCookie.uid);
 
 const tradesSnapshot = await getDocs(

@@ -8,10 +8,12 @@ const auth = getAuth(app);
 
 const sessionCookie = Astro.cookies.get('session').value;
 
-if (!sessionCookie) {
+let decodedCookie: any;
+try {
+  decodedCookie = await auth.verifySessionCookie(sessionCookie);
+} catch (err) {
   return Astro.redirect('/signin');
 }
-const decodedCookie = await auth.verifySessionCookie(sessionCookie);
 const user = await auth.getUser(decodedCookie.uid);
 
 const trades: Trade[] = await fetchTrades(user.uid);

@@ -1,16 +1,16 @@
 <section class="trade-input">
-  <p>
-    Copy and paste your trades from TD Ameritrade and past them in the below
-  </p>
+  <div class="pb-6">
+    <p>Select your broker, then paste your trades below</p>
+    <input type="radio" id="td" name="tradingplatform" value="td" checked />
+    <label class="pl-1 pr-2" for="td">TD Ameritrade</label>
+    <input type="radio" id="webull" name="tradingplatform" value="webull" />
+    <label class="pl-1 pr-2" for="webull">Webull</label>
+  </div>
   <textarea
     id="tradeData"
     rows="10"
     cols="50"
     placeholder="Paste your trades here..."></textarea>
-  <input type="radio" id="webull" name="tradingplatform" value="webull" />
-  <label for="webull">Webull</label><br />
-  <input type="radio" id="td" name="tradingplatform" value="td" />
-  <label for="td">TD Ameritrade</label><br />
   <button
     id="submitTrades"
     type="submit"

@@ -1,3 +1,31 @@
+---
+import { app } from '../firebase/server';
+import { getAuth } from 'firebase-admin/auth';
+
+const auth = getAuth(app);
+
+const sessionCookie = Astro.cookies.get('session');
+
+let decodedCookie = null; // Initialize decodedCookie as null
+
+try {
+  if (sessionCookie) {
+    decodedCookie = await auth.verifySessionCookie(sessionCookie.value);
+  }
+} catch (err) {}
+
+let user = null;
+
+if (decodedCookie) {
+  try {
+    user = await auth.getUser(decodedCookie.uid);
+  } catch (error) {
+    // Handle any errors that occur when fetching the user, e.g., user not found.
+    console.error('Error: ', error);
+  }
+}
+---
+
 <nav class="navbar">
   <div class="navbar-container">
     <div class="logo-container">
@@ -9,7 +37,21 @@
       <li><a href="/dashboard" class="navbar-item">Dashboard</a></li>
       <li><a href="/input" class="navbar-item">Trade Import</a></li>
       <li><a href="/viewAllTrades" class="navbar-item">View All Trades</a></li>
-      <li><a href="/api/auth/signout" class="navbar-item">Sign out</a></li>
+      {
+        user ? (
+          <li>
+            <a href="/api/auth/signout" class="navbar-item">
+              Sign out
+            </a>
+          </li>
+        ) : (
+          <li>
+            <a href="/signin" class="navbar-item">
+              Sign In
+            </a>
+          </li>
+        )
+      }
     </ul>
   </div>
 </nav>

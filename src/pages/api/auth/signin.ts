@@ -26,7 +26,6 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
 
   cookies.set('session', sessionCookie, {
     path: '/',
-    sameSite: 'none',
     secure: true,
   });
 
